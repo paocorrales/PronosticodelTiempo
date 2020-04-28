@@ -13,19 +13,23 @@ library(metR)
 library(rNOMADS)
 library(tidyverse)
 library(data.table)
+library(patchwork)
 
 map <- rnaturalearth::ne_states(country = c("argentina", "Brazil", "Chile", "Uruguay", "Paraguay", "Bolivia"), returnclass = "sf")
 
 geom_mapa <- function() {
   geom_sf(data = map, fill = NA, color = "black", size = 0.2, inherit.aes = FALSE)
 }
+
+estaciones_prueba <- c("MENDOZA AERO", "RESISTENCIA AERO", 
+                       "RIO CUARTO AERO", "AEROPARQUE AERO")
 ```
 
 ## Estaciones meteorológicas de superficie
 
 Periodo 18-16 de abril 2020 (de acuerdo a la disponibilidad de gdas)
 
-```{r obs}
+```{r obs, warning=FALSE}
 # meta_estaciones <- fread("estaciones_smn.txt", header = FALSE, skip = 1) %>%
 #   .[, V10 := NULL] %>%
 #   .[, lat := as.numeric(str_trim(paste0(V3, ".", V4), "both"))] %>%
@@ -114,10 +118,7 @@ interp[variables == "TMP"] %>%
   scale_fill_divergent() +
   geom_mapa() +
   coord_sf(xlim = c(-75, -52), ylim = c(-55, -22)) +
-  theme_minimal()
-
-estaciones_prueba <- c("MENDOZA AERO", "RESISTENCIA AERO", 
-                       "RIO CUARTO AERO", "AEROPARQUE AERO")
+  theme_minimal() 
 
 interp[variables == "TMP" & nombre %in% estaciones_prueba] %>% 
   .[, obs.ana := mean(obs - ana), by = .(model.run.date, nombre)] %>% 
@@ -127,7 +128,7 @@ interp[variables == "TMP" & nombre %in% estaciones_prueba] %>%
   labs(x = "Fecha",
        y = "Bias", 
        color = "estación") +
-  theme_minimal()
+  theme_minimal() 
 ```
 
 ## Humedad
@@ -140,10 +141,7 @@ interp[variables == "RH"] %>%
   scale_fill_divergent() +
   geom_mapa() +
   coord_sf(xlim = c(-75, -52), ylim = c(-55, -22)) +
-  theme_minimal()
-
-estaciones_prueba <- c("MENDOZA AERO", "RESISTENCIA AERO", 
-                       "RIO CUARTO AERO", "AEROPARQUE AERO")
+  theme_minimal() 
 
 interp[variables == "RH" & nombre %in% estaciones_prueba] %>% 
   .[, obs.ana := mean(obs - ana), by = .(model.run.date, nombre)] %>% 
@@ -153,5 +151,5 @@ interp[variables == "RH" & nombre %in% estaciones_prueba] %>%
   labs(x = "Fecha",
        y = "Bias", 
        color = "estación") +
-  theme_minimal()
+  theme_minimal() 
 ```
