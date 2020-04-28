@@ -1,0 +1,157 @@
+---
+title: "Comparación entre el análisis y observaciones"
+author: "Pao"
+date: "April 27, 2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, 
+                      cache = TRUE)
+
+library(metR)
+library(rNOMADS)
+library(tidyverse)
+library(data.table)
+
+map <- rnaturalearth::ne_states(country = c("argentina", "Brazil", "Chile", "Uruguay", "Paraguay", "Bolivia"), returnclass = "sf")
+
+geom_mapa <- function() {
+  geom_sf(data = map, fill = NA, color = "black", size = 0.2, inherit.aes = FALSE)
+}
+```
+
+## Estaciones meteorológicas de superficie
+
+Periodo 18-16 de abril 2020 (de acuerdo a la disponibilidad de gdas)
+
+```{r obs}
+# meta_estaciones <- fread("estaciones_smn.txt", header = FALSE, skip = 1) %>%
+#   .[, V10 := NULL] %>%
+#   .[, lat := as.numeric(str_trim(paste0(V3, ".", V4), "both"))] %>%
+#   .[, lon := as.numeric(str_trim(paste0(V5, ".", V6), "both"))] %>%
+#   .[, c("V1", "V2", "lon", "lat", "V7", "V8", "V9")] %>%
+#   setnames(c("V1", "V2", "lon", "lat", "V7", "V8", "V9"), c("nombre", "provincia", "lon", "lat", "altura", "numero", "numeroOACI")) %>%
+#   fwrite("estaciones_smn.csv")
+
+meta_estaciones <- fread("estaciones_smn.csv")
+
+dates <- seq.Date(lubridate::ymd(20200418), lubridate::ymd(20200426), by = "1 day")
+obs <- GetSMNData(dates, type = "hourly") %>% 
+  setDT()
+
+obs <- meta_estaciones[obs, on = c(nombre = "station")] %>% 
+    setnames(c("t", "rh"), c("TMP", "RH")) %>% 
+  .[, date := lubridate::as_datetime(date)]
+
+obs %>% 
+  unique(by = "nombre") %>% 
+  ggplot(aes(lon, lat)) +
+  geom_point(size = 0.8) +
+  geom_mapa() +
+  coord_sf(xlim = c(-75, -52), ylim = c(-55, -22)) +
+  theme_minimal()
+
+estaciones <- na.omit(obs) %>% unique(by = c("lon", "lat"))
+```
+
+```{r gfsanl}
+# url_disponible <- CrawlModels("gdas_0p25")
+# purrr::map(url_disponible, function(url) {
+#   
+#   fecha_hora <- unglue::unglue(url, "https://nomads.ncep.noaa.gov/cgi-bin/filter_gdas_0p25.pl?dir=%2Fgdas.{fecha}%2F{hora}")
+#   dir.create(paste0(getwd(), "/",fecha_hora[[1]][["fecha"]]))
+#   preds <- ParseModelPage(url)$pred[1]
+#   model.info <- GribGrab(url, 
+#                          preds, 
+#                          levels = c("2 m above ground"),
+#                          variables = c("UGRD", "VGRD", "TMP", "RH"),
+#                          local.dir = paste0(getwd(), "/",fecha_hora[[1]][["fecha"]], "/"))
+# })
+
+
+files <- list.files(path = "gdas/", pattern = ".grb", 
+                    recursive = TRUE, full.names = TRUE)
+domain <- c(285, 305, -22, -60)
+gdas <- purrr::map(files, function(f) {
+  model.data <- ReadGrib(f, 
+                         c("2 m above ground"), 
+                         variables = c("TMP", "RH"),
+                         domain = domain)
+  model.data <- as_tibble(model.data) %>% 
+    setDT() %>% 
+    .[, ":="(model.run.date = lubridate::as_datetime(model.run.date),
+             forecast.date = lubridate::as_datetime(forecast.date))] %>% 
+    .[, meta.data := NULL] %>% 
+    .[, grib.type := NULL] %>% 
+    .[, value := if_else(variables == "TMP", value -273.15, value)] %>% 
+    .[]
+  
+}) %>% rbindlist()
+
+obs_t_rh <- obs %>% 
+  melt(measure.vars = c("TMP", "RH"))
+```
+
+```{r interp}
+interp <- gdas %>% 
+  .[, interp::interp(lon, lat, value,
+                     xo = estaciones$lon,
+                     yo = estaciones$lat,
+                     output = "points"), by = .(model.run.date, variables)] %>% .[obs_t_rh, on = c(y = "lat", x = "lon", 
+                                                                                                   model.run.date = "date", variables = "variable")] %>% 
+  na.omit() %>% 
+  setnames(c("x", "y", "z", "value"), c("lon", "lat", "ana", "obs"))
+```
+
+## Temperatura
+
+```{r}
+interp[variables == "TMP"] %>% 
+  .[, bias := mean(obs - ana), by = .(nombre, variables)] %>% 
+  ggplot(aes(lon, lat)) +
+  geom_point(aes(fill = bias), shape = 21) +
+  scale_fill_divergent() +
+  geom_mapa() +
+  coord_sf(xlim = c(-75, -52), ylim = c(-55, -22)) +
+  theme_minimal()
+
+estaciones_prueba <- c("MENDOZA AERO", "RESISTENCIA AERO", 
+                       "RIO CUARTO AERO", "AEROPARQUE AERO")
+
+interp[variables == "TMP" & nombre %in% estaciones_prueba] %>% 
+  .[, obs.ana := mean(obs - ana), by = .(model.run.date, nombre)] %>% 
+  ggplot(aes(model.run.date, obs.ana)) +
+  geom_line(aes(color = nombre, group = nombre)) +
+  scale_color_viridis_d() +
+  labs(x = "Fecha",
+       y = "Bias", 
+       color = "estación") +
+  theme_minimal()
+```
+
+## Humedad
+
+```{r}
+interp[variables == "RH"] %>% 
+  .[, bias := mean(obs - ana), by = .(nombre, variables)] %>% 
+  ggplot(aes(lon, lat)) +
+  geom_point(aes(fill = bias), shape = 21) +
+  scale_fill_divergent() +
+  geom_mapa() +
+  coord_sf(xlim = c(-75, -52), ylim = c(-55, -22)) +
+  theme_minimal()
+
+estaciones_prueba <- c("MENDOZA AERO", "RESISTENCIA AERO", 
+                       "RIO CUARTO AERO", "AEROPARQUE AERO")
+
+interp[variables == "RH" & nombre %in% estaciones_prueba] %>% 
+  .[, obs.ana := mean(obs - ana), by = .(model.run.date, nombre)] %>% 
+  ggplot(aes(model.run.date, obs.ana)) +
+  geom_line(aes(color = nombre, group = nombre)) +
+  scale_color_viridis_d() +
+  labs(x = "Fecha",
+       y = "Bias", 
+       color = "estación") +
+  theme_minimal()
+```
