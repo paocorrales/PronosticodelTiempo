@@ -32,7 +32,7 @@ estaciones_prueba <- c("RESISTENCIA AERO",
 
 ## Estaciones meteorológicas de superficie
 
-Para la comparación con el análisis de GFS se se descargaron las observaciones de estaciones de superficie pertenencientes al Servicio Meteorológico Nacional e incluidas en la base de datos pública (Figura \@ref(fig:obs)). Para la descarca automática se utilizó la función `GetSMNData()` del paquete `metR`.
+Para la comparación con el análisis de GFS se se descargaron las observaciones de estaciones de superficie pertenecientes al Servicio Meteorológico Nacional e incluidas en la base de datos pública (Figura \@ref(fig:obs)). Para la descarga automática se utilizó la función `GetSMNData()` del paquete `metR`.
 
 ```{r obs, warning=FALSE, fig.align="left", fig.height=4.8, fig.cap="Ubicación de las estaciones meteorológicas incluidas en el análisis"}
 # meta_estaciones <- fread("estaciones_smn.txt", header = FALSE, skip = 1) %>%
@@ -45,7 +45,7 @@ Para la comparación con el análisis de GFS se se descargaron las observaciones
 
 meta_estaciones <- fread("estaciones_smn.csv")
 
-dates <- seq.Date(lubridate::ymd(20200418), lubridate::ymd(20200504), by = "1 day")
+dates <- seq.Date(lubridate::ymd(20200418), lubridate::ymd(20200511), by = "1 day")
 obs <- GetSMNData(dates, type = "hourly") %>% 
   setDT()
 
@@ -64,7 +64,7 @@ obs %>%
 estaciones <- na.omit(obs) %>% unique(by = c("lon", "lat"))
 ```
 
-El análisis del GFS se descargó de [https://nomads.ncep.noaa.gov](https://nomads.ncep.noaa.gov) utilizando la librería `rNOMADS`. Se utilizó el análisis disponible en 2.5° a las 4 horas principales. Las variable utilizada fue la *temperatura a dos metros* que luego fue interpolada bilinealmente a la ubicación de cada estación meteorológica.
+El análisis del GFS se descargó de [https://nomads.ncep.noaa.gov](https://nomads.ncep.noaa.gov) utilizando la librería `rNOMADS`. Se utilizó el análisis disponible en 0.25° a las 4 horas principales. Las variable utilizada fue la *temperatura a dos metros* que luego fue interpolada bilinealmente a la ubicación de cada estación meteorológica para una mejor comparación.
 
 ```{r gfsanl}
 # url_disponible <- CrawlModels("gdas_0p25")
@@ -118,9 +118,9 @@ interp <- gdas %>%
 
 ## Temperatura a 2 metros
 
-En la Figura \@ref(fig:mapa-temp) se muestra el bias del análisis para la temperatura a dos metros para cada estación calculada para el periodos 18/04/2020 a 11/05/2020. A primera vista se observan algunas estaciones con bias por encima de 5 grados y si bien es posible, su ubicación hace pensar que hay problemas en la resolución de la topografía del modelo. 
+En la Figura \@ref(fig:mapa-temp) se muestra el bias del análisis para la temperatura a dos metros para cada estación meteorológica, calculado para el periodos 18/04/2020 - 11/05/2020. A primera vista se observan algunas estaciones con bias por encima de 5 grados y si bien es posible, su ubicación hace pensar que hay problemas en la resolución de la topografía del modelo. 
 
-```{r mapa-temp, fig.align="center", fig.width=4, fig.height=6, fig.cap="Bias del análisis para la temperatura a 2 metros para cada estación calculado para el periodo 18 de abril a 11 de mayo."}
+```{r mapa-temp, fig.align="center", fig.width=4, fig.height=5.5, fig.cap="Bias del análisis para la temperatura a 2 metros en cada estación meteorológica calculado para el periodo 18 de abril a 11 de mayo."}
 interp[variables == "TMP"] %>% 
   .[, .(bias = mean(obs - ana)), by = .(nombre, variables, lon, lat)] %>% 
   ggplot(aes(lon, lat)) +
@@ -136,7 +136,7 @@ interp[variables == "TMP"] %>%
 ```
 
 
-```{r topo, fig.align="center", fig.height=3, fig.cap="Relación entre el bias en la temperatura y la diferencia de alturas del modelo y la estación. Se marcan las estaciones donde la diferencia de altura es mayor a 500 metros."}
+```{r topo, fig.align="center", fig.height=2.5, fig.cap="Relación entre el bias en la temperatura y la diferencia de alturas del modelo y la estación. Se marcan las estaciones donde la diferencia de altura es mayor a 500 metros."}
 topo <- ReadGrib("/home/pao/Documents/PronosticodelTiempo/topo.grb",
                  variables = "HGT",
                  levels = "surface",
@@ -176,7 +176,7 @@ porcentaje <- topo_estaciones[interp[variables == "TMP"], on = c("lon", "lat")] 
 
 ```
 
-Para analizar la diferencia de altura entre la estación y análisis debido a una mala representación de de la topográfia en el modelo, se interpoló el campo de altura geopotencial en superficie a la ubicación de las estaciones meteorológicas. La relación entre el bias de la temperatura y la diferencia de altura se muestra en la Figura \@ref(fig:topo). La diferencia de alturas en mayormente negativa, lo que indica que la topografía en el modelo sobreestima la altura real en algunas regiones. Las estaciones que en la Figura \@ref(fig:mapa-temp) muestran un bias de temperatura muy alto también están asociadas a differencias de altura grandes:
+Para analizar la diferencia de altura entre la estación y análisis debido a una mala representación de de la topografía en el modelo, se interpoló el campo de altura geopotencial en superficie a la ubicación de las estaciones meteorológicas. La relación entre el bias de la temperatura y la diferencia de altura se muestra en la Figura \@ref(fig:topo). La diferencia de alturas en mayormente negativa, lo que indica que la topografía en el modelo sobrestima la altura real en algunas regiones. Las estaciones que en la Figura \@ref(fig:mapa-temp) muestran un bias de temperatura muy alto también están asociadas a diferencias de altura grandes:
 
 - Jujuy Aero
 - Tucumán Aero
@@ -184,12 +184,8 @@ Para analizar la diferencia de altura entre la estación y análisis debido a un
 - Chilecito Aero
 - Catamarca Aero
 
-Si bien la diferencia de alturas puede explicar parte del bias observado en la temperatura, posiblemente hay otros factores involucrados. Por ejemplo, el `r round(porcentaje, 2)`% de las estaciones tiene un bias negativo, esto podría indicar que el análisis sobreestima la temperatura a 2 metros. En particular, en la Figura \@ref(fig:por-hora) se muestra la distribución del bias calculado para cada hora principal y si bien se observa que las distrubuciones son aproximadamente gausianas, todas tienen una asimetría negativa. 
 
 ```{r por-hora, fig.height=3, fig.cap="Diferencia entre las obseraciones y el análisis en las estaciones donde el bias es mayor a 5 grados."}
-
-estaciones_malas <- c("JUJUY AERO", "TUCUMAN AERO", "CATAMARCA AERO", 
-                      "EL BOLSON AERO", "CHILECITO AERO")
 
 interp[variables == "TMP"] %>% 
   .[, .(obs.ana = mean(obs - ana)), by = .(hora = hour(model.run.date), nombre)] %>% 
@@ -205,6 +201,29 @@ interp[variables == "TMP"] %>%
   theme_minimal() +
   theme(legend.position = "bottom")
 ```
+
+```{r mapa-temp-corregido, fig.align="center", fig.width=4, fig.height=8, fig.cap="Bias del análisis para la temperatura a 2 metros en las estaciones meteorológicas ubicadas en regiones donde la diferencia entre la altura de la estación y la altura en el modelo es menor a 500 metros."}
+
+estaciones_malas <- c("JUJUY AERO", "TUCUMAN AERO", "CATAMARCA AERO", 
+                      "EL BOLSON AERO", "CHILECITO AERO")
+
+interp[variables == "TMP" & !(nombre %in% estaciones_malas)] %>% 
+  .[, .(bias = mean(obs - ana)), by = .(nombre, variables, lon, lat)] %>% 
+  ggplot(aes(lon, lat)) +
+  geom_point(aes(fill = bias, size = bias^2), shape = 21) +
+  scale_fill_divergent(name = "Bias", 
+                       guide = guide_colorbar(barwidth = 15,
+                                              barheight = 0.7)) +
+  scale_size_area(guide = "none") +
+  geom_mapa() +
+  coord_sf(xlim = c(-75, -52), ylim = c(-55, -22)) +
+  theme_minimal() +
+  theme(legend.position = "bottom")
+```
+
+Si bien la diferencia de alturas puede explicar parte del bias observado en la temperatura, posiblemente hay otros factores involucrados. Por ejemplo, el `r round(porcentaje, 2)`% de las estaciones tiene un bias negativo, esto podría indicar que el análisis sobrestima la temperatura a 2 metros. En particular, en la Figura \@ref(fig:por-hora) se muestra la distribución del bias calculado para cada hora principal incluyendo todas las estaciones, y si bien se observa que las distribuciones son aproximadamente gausianas, todas tienen una asimetría negativa indicando que el análisis sobrestima la temperatura en niveles bajos. 
+
+Finalmente, en la Figura \@ref(fig:mapa-temp-corregido) se muestra el mapa de la Figura \@ref(fig:mapa-temp) eliminando las estaciones ubicadas en regiones donde el modelo no representa de manera correcta la topografía. De esta manera se puede observar que en la mayoría de los casos el bias es negativo y oscila entre -4°C y 4°C para el periodo considerado. 
 
 Si se analiza la diferencia entre la temperatura observada y la temperatura del análisis para 4 estaciones a lo largo del período (Figura \@ref(fig:evolucion-temp)) se puede ver que cambia rápidamente a lo largo del tiempo. En particular durante el 24 de abril se observa un máximo en la diferencia de temperatura en la estación Río Cuarto Aero y durante el 26 de abril en la estación Resistencia Aero. De acuerdo a las observaciones en esas estaciones, se observa un cambio en la dirección del viento a 10 metros lo que podría indicar el avance de una masa de aire. Debido a que estos procesos pueden estar mal representados en el análisis o ocurrir en tiempos distintos a la realidad, esto podría explicar las diferencias observadas con las observaciones. 
 
