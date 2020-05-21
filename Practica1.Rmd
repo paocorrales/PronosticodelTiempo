@@ -4,7 +4,7 @@ subtitle: "Actividad N°1"
 author: "Paola Corrales"
 date: "12 de mayo de 2020"
 output: 
-  word_document
+    word_document
   # bookdown::pdf_document2:
   #   number_sections: false
 toc: false
