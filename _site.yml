@@ -1,0 +1,12 @@
+navbar: 
+  title: <i class="wi wi-day-sunny"></i> Pronóstico del Tiempo
+  left: 
+  - text: Validación
+    menu:
+      - text: Buenos Aires
+        href: buenos-aires-val.html
+output_dir: docs
+output:
+  html_document:
+    theme: sandstone
+    css: ["css/weather-icons.min.css", "css/weather-icons.css"]
