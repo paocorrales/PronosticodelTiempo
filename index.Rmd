@@ -1,5 +1,5 @@
 ---
-title: "Pronóstico del tiempo"
+title: "Pronóstico por ciudades"
 ---
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE,
@@ -15,28 +15,27 @@ icons <- readxl::read_xlsx("icons.xlsx")
 ```
 
 
-Pronóstico por ciudades.
-         
 ```{r}
-ultimo_prono <- tail(test, 3)
+ultimo_prono <- tail(loc1, 3)
 fecha_ultimo_prono <- unique(ultimo_prono$fecha_analisis)
 dia <- as.character(day(fecha_ultimo_prono))
 mes <- as.character(month(fecha_ultimo_prono, abbr = FALSE, label = TRUE))
 anio <- as.character(year(fecha_ultimo_prono))
 ```
 
-## Pronóstico generado el `r dia` de `r mes` de `r anio`
+## Análisis del día `r dia` de `r mes` de `r anio`
 
 ```{r}
-ciudad <- unique(test$ciudad)
+ciudad <- unique(loc1$ciudad)
 
-test <- left_join(test, icons, by = c("icon" = "codigo")) 
+loc1 <- left_join(loc1, icons, by = c("icon" = "codigo")) 
 ```
 
 ### `r ciudad`
 
 ```{r}
-test %>% 
+loc1 %>% 
+  # mutate(texto_claro = "prueba") %>% 
   select(fecha_pronos, texto_claro, tmax, tmin, nubosidad, viento, figura) %>% 
   mutate(fecha_pronos = format(fecha_pronos, "%d/%m/%Y"),
          tmax = paste0(tmax, " °"),
@@ -44,12 +43,32 @@ test %>%
   kable(col.names = c("Fecha", "Pronóstico", "T máxima", "T mínima", "Nubosidad", "Viento", ""),
                align = "llccccc") %>% 
  kable_styling(full_width = TRUE,
-               bootstrap_options = c("responsive")) %>% 
+               bootstrap_options = c("responsive")) %>%
+  column_spec(2, width_max = "22em") %>% 
   column_spec(3, color = "red") %>% 
-  column_spec(4, color = "blue") 
+  column_spec(4, color = "blue") %>% 
+  column_spec(5, width_max = "7em")
 ```
 
+```{r}
+ciudad <- unique(loc2$ciudad)
 
+loc2 <- left_join(loc2, icons, by = c("icon" = "codigo")) 
+```
+
+### `r ciudad`
+
+Muy pronto
+
+```{r}
+ciudad <- unique(loc3$ciudad)
+
+loc3 <- left_join(loc3, icons, by = c("icon" = "codigo")) 
+```
+
+### `r ciudad`
+
+Muy pronto
 
 Disclaimer: ¿Llegaste de casualidad a esta página y pensas que encontraste un buen pronóstico? Pues no, los pronósticos que vez acá forman parte de la práctica de la materia Pronóstico del tiempo, a.k.a. estoy aprendiendo y posiblemente le pifie feo. Además la página se va a actualizar solo hasta el 15 de octubre de 2020. 
 
