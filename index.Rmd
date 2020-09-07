@@ -16,7 +16,7 @@ icons <- readxl::read_xlsx("icons.xlsx")
 
 
 ```{r}
-ultimo_prono <- tail(loc1, 3)
+ultimo_prono <- tail(loc1, 2)
 fecha_ultimo_prono <- unique(ultimo_prono$fecha_analisis)
 dia <- as.character(day(fecha_ultimo_prono))
 mes <- as.character(month(fecha_ultimo_prono, abbr = FALSE, label = TRUE))
@@ -35,7 +35,7 @@ loc1 <- left_join(loc1, icons, by = c("icon" = "codigo"))
 
 ```{r}
 loc1 %>% 
-  # mutate(texto_claro = "prueba") %>% 
+  filter(fecha_analisis == fecha_ultimo_prono) %>% 
   select(fecha_pronos, texto_claro, tmax, tmin, nubosidad, viento, figura) %>% 
   mutate(fecha_pronos = format(fecha_pronos, "%d/%m/%Y"),
          tmax = paste0(tmax, " °"),
