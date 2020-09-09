@@ -1,7 +1,8 @@
 ---
-title: "Ciudad de Buenos Aires"
+title: "Salta Aero"
 output: html_document
 ---
+
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE,
@@ -15,7 +16,7 @@ library(lubridate)
 library(kableExtra)
 library(patchwork)
 
-loc1 <- setDT(loc1)
+loc2 <- setDT(loc2)
 ```
 
 ## Temperatura
@@ -23,7 +24,7 @@ loc1 <- setDT(loc1)
 Marcha de temperatura mínima y máxima en conjunto con las temperaturas observadas
 
 ```{r}
-loc1 %>% 
+loc2 %>% 
   melt(measure.vars = c("tmax", "tmax_obs")) %>% 
   ggplot(aes(fecha_pronos, value)) +
   geom_point(aes(shape = variable), color = "red") +
@@ -37,7 +38,7 @@ loc1 %>%
   theme_minimal() +
   theme(legend.position = "bottom") +
   
- loc1 %>% 
+ loc2 %>% 
   melt(measure.vars = c("tmin", "tmin_obs")) %>% 
   ggplot(aes(fecha_pronos, value)) +
   geom_point(aes(shape = variable), color = "blue") +
@@ -56,7 +57,7 @@ loc1 %>%
 Correlación.
 
 ```{r}
-loc1 %>%
+loc2 %>%
   melt(measure.vars = list(prono = c(tmax = "tmax", tmin = "tmin"), 
                            obs = c(tmax = "tmax_obs", tmin = "tmin_obs"))) %>% 
   ggplot(aes(obs, prono)) +
@@ -75,7 +76,7 @@ loc1 %>%
 
 ### Estadísticas
 ```{r}
-loc1 %>%
+loc2 %>%
   melt(measure.vars = list(prono = c(tmax = "tmax", tmin = "tmin"), 
                            obs = c(tmax = "tmax_obs", tmin = "tmin_obs"))) %>% 
   .[, variable := if_else(variable == 1, "Temperatura máxima", "Temperatura mínima")] %>% 

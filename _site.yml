@@ -5,6 +5,8 @@ navbar:
     menu:
       - text: Buenos Aires
         href: buenos-aires-val.html
+      - text: Salta Aero
+        href: salta-aero-val.html
 output_dir: docs
 output:
   html_document:
