@@ -50,6 +50,9 @@ loc1 %>%
   column_spec(5, width_max = "7em")
 ```
 ```{r}
+ultimo_prono <- tail(loc2, 2)
+fecha_ultimo_prono <- unique(ultimo_prono$fecha_analisis)
+
 ciudad <- unique(loc2$ciudad)
 
 loc2 <- left_join(loc2, icons, by = c("icon" = "codigo")) 

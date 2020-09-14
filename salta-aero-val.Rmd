@@ -27,6 +27,7 @@ Marcha de temperatura mínima y máxima en conjunto con las temperaturas observa
 loc2 %>% 
   melt(measure.vars = c("tmax", "tmax_obs")) %>% 
   ggplot(aes(fecha_pronos, value)) +
+  geom_line(aes(linetype = variable), color = "red") +
   geom_point(aes(shape = variable), color = "red") +
   scale_shape(labels = c("Pronóstico", "Observación")) +
   facet_wrap(~validez_del_pronostico, 
@@ -41,6 +42,7 @@ loc2 %>%
  loc2 %>% 
   melt(measure.vars = c("tmin", "tmin_obs")) %>% 
   ggplot(aes(fecha_pronos, value)) +
+  geom_line(aes(linetype = variable), color = "blue") +
   geom_point(aes(shape = variable), color = "blue") +
   scale_shape(labels = c("Pronóstico", "Observación")) +
   facet_wrap(~validez_del_pronostico, 
@@ -61,8 +63,8 @@ loc2 %>%
   melt(measure.vars = list(prono = c(tmax = "tmax", tmin = "tmin"), 
                            obs = c(tmax = "tmax_obs", tmin = "tmin_obs"))) %>% 
   ggplot(aes(obs, prono)) +
+    # geom_smooth(method = "lm", aes(color = factor(validez_del_pronostico))) +
   geom_point(aes(color = factor(validez_del_pronostico))) +
-  # geom_smooth(method = "lm", aes(color = factor(validez_del_pronostico))) +
   scale_color_manual(values = c("darkorange", rgb(0, 139, 139, maxColorValue = 255))) +
   facet_wrap(~variable, labeller = labeller(variable = c("1" = "Temperatura máxima",
                                                          "2" = "Tempetatura mínima")),
@@ -80,9 +82,9 @@ loc2 %>%
   melt(measure.vars = list(prono = c(tmax = "tmax", tmin = "tmin"), 
                            obs = c(tmax = "tmax_obs", tmin = "tmin_obs"))) %>% 
   .[, variable := if_else(variable == 1, "Temperatura máxima", "Temperatura mínima")] %>% 
-  .[, .(bias = mean(prono - obs),
-           mae = mean(abs(prono - obs)),
-           rmse = sd(prono - obs)), by = .(validez_del_pronostico, variable)] %>% 
+  .[, .(bias = mean(prono - obs, na.rm = TRUE),
+           mae = mean(abs(prono - obs), na.rm = TRUE),
+           rmse = sd(prono - obs, na.rm = TRUE)), by = .(validez_del_pronostico, variable)] %>% 
   kable(col.names = c("Validez", "Variable", "BIAS", "MAE", "RMSE"),
         align = "clccc",
         digits = 2) %>% 
