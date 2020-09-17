@@ -30,12 +30,14 @@ loc2 %>%
   geom_line(aes(linetype = variable), color = "red") +
   geom_point(aes(shape = variable), color = "red") +
   scale_shape(labels = c("Pronóstico", "Observación")) +
+  scale_linetype(labels = c("Pronóstico", "Observación")) +
   facet_wrap(~validez_del_pronostico, 
              labeller = labeller(validez_del_pronostico = c("24" = "Validez 24 hs", 
                                                             "48" = "Validez 48 hs"))) +
   labs(x = "",
-       y = "Temperatura máxima",
-       shape = "") +
+       y = "Temperatura mínima",
+       shape = "",
+       linetype = "") +
   theme_minimal() +
   theme(legend.position = "bottom") +
   
@@ -45,12 +47,14 @@ loc2 %>%
   geom_line(aes(linetype = variable), color = "blue") +
   geom_point(aes(shape = variable), color = "blue") +
   scale_shape(labels = c("Pronóstico", "Observación")) +
+  scale_linetype(labels = c("Pronóstico", "Observación")) +
   facet_wrap(~validez_del_pronostico, 
              labeller = labeller(validez_del_pronostico = c("24" = "Validez 24 hs", 
                                                             "48" = "Validez 48 hs"))) +
   labs(x = "",
        y = "Temperatura mínima",
-       shape = "") +
+       shape = "",
+       linetype = "") +
   theme_minimal() +
   theme(legend.position = "bottom") +
   patchwork::plot_layout(ncol = 1) 
@@ -63,7 +67,7 @@ loc2 %>%
   melt(measure.vars = list(prono = c(tmax = "tmax", tmin = "tmin"), 
                            obs = c(tmax = "tmax_obs", tmin = "tmin_obs"))) %>% 
   ggplot(aes(obs, prono)) +
-    # geom_smooth(method = "lm", aes(color = factor(validez_del_pronostico))) +
+  geom_smooth(method = "lm", aes(color = factor(validez_del_pronostico))) +
   geom_point(aes(color = factor(validez_del_pronostico))) +
   scale_color_manual(values = c("darkorange", rgb(0, 139, 139, maxColorValue = 255))) +
   facet_wrap(~variable, labeller = labeller(variable = c("1" = "Temperatura máxima",

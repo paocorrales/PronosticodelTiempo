@@ -30,12 +30,14 @@ loc1 %>%
   geom_line(aes(linetype = variable), color = "red") +
   geom_point(aes(shape = variable), color = "red") +
   scale_shape(labels = c("Pronóstico", "Observación")) +
+  scale_linetype(labels = c("Pronóstico", "Observación")) +
   facet_wrap(~validez_del_pronostico, 
              labeller = labeller(validez_del_pronostico = c("24" = "Validez 24 hs", 
                                                             "48" = "Validez 48 hs"))) +
   labs(x = "",
-       y = "Temperatura máxima",
-       shape = "") +
+       y = "Temperatura mínima",
+       shape = "",
+       linetype = "") +
   theme_minimal() +
   theme(legend.position = "bottom") +
   
@@ -45,12 +47,14 @@ loc1 %>%
   geom_line(aes(linetype = variable), color = "blue") +
   geom_point(aes(shape = variable), color = "blue") +
   scale_shape(labels = c("Pronóstico", "Observación")) +
+  scale_linetype(labels = c("Pronóstico", "Observación")) +
   facet_wrap(~validez_del_pronostico, 
              labeller = labeller(validez_del_pronostico = c("24" = "Validez 24 hs", 
                                                             "48" = "Validez 48 hs"))) +
   labs(x = "",
        y = "Temperatura mínima",
-       shape = "") +
+       shape = "",
+       linetype = "") +
   theme_minimal() +
   theme(legend.position = "bottom") +
   patchwork::plot_layout(ncol = 1) 
