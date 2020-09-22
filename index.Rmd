@@ -86,10 +86,25 @@ loc3 <- left_join(loc3, icons, by = c("icon" = "codigo"))
 
 ### `r ciudad`
 
-Muy pronto
+```{r}
+loc3 %>% 
+  filter(fecha_analisis == fecha_ultimo_prono) %>% 
+  select(fecha_pronos, texto_claro, tmax, tmin, nubosidad, viento, figura) %>% 
+  mutate(fecha_pronos = format(fecha_pronos, "%d/%m/%Y"),
+         tmax = paste0(tmax, " °"),
+         tmin = paste0(tmin, " °")) %>% 
+  kable(col.names = c("Fecha", "Pronóstico", "T máxima", "T mínima", "Nubosidad", "Viento", ""),
+               align = "llccccc") %>% 
+ kable_styling(full_width = TRUE,
+               bootstrap_options = c("responsive")) %>%
+  column_spec(2, width_max = "22em") %>% 
+  column_spec(3, color = "red") %>% 
+  column_spec(4, color = "blue") %>% 
+  column_spec(5, width_max = "7em")
+```
 
 
 
-Disclaimer: ¿Llegaste de casualidad a esta página y pensas que encontraste un buen pronóstico? Pues no, los pronósticos que vez acá forman parte de la práctica de la materia Pronóstico del tiempo, a.k.a. estoy aprendiendo y posiblemente le pifie feo. Además la página se va a actualizar solo hasta el 15 de octubre de 2020. 
+**Disclaimer:** ¿Llegaste de casualidad a esta página y pensas que encontraste un buen pronóstico? Pues no, los pronósticos que vez acá forman parte de la práctica de la materia Pronóstico del tiempo, a.k.a. estoy aprendiendo y posiblemente le pifie feo. Además la página se va a actualizar solo hasta el 15 de octubre de 2020. 
 
 Los iconos fueron extraidos del [Servicio Meteorológico Nacional](https://www.smn.gob.ar/)
