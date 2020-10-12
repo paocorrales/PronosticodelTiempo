@@ -1,0 +1,544 @@
+---
+title: "Validación de pronósticos"
+subtitle: "<i class='wi wi-day-sunny'></i>"
+author: "Pao Corrales"
+institute: "Pronóstico del Tiempo"
+date: "`r Sys.Date()`"
+output:
+  xaringan::moon_reader:
+    css: ["css/weather-icons.min.css", "css/weather-icons.css", default, rladies]
+    lib_dir: libs
+    nature:
+      ratio: "16:9" 
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = FALSE,
+  message = FALSE,
+  warning = FALSE
+)
+source("read_prono.R")
+library(tidyverse)
+library(data.table)
+library(lubridate)
+library(kableExtra)
+library(patchwork)
+library(printr)
+
+size <- 14
+```
+
+class: inverse, center, middle
+
+# Ciudad 1: Buenos Aires
+
+---
+
+## Temperatura
+
+.pull-left[
+
+```{r}
+ciudad <- setDT(loc1)
+
+ciudad %>% 
+  melt(measure.vars = c("tmax", "tmax_obs")) %>% 
+  ggplot(aes(fecha_pronos, value)) +
+  geom_line(aes(linetype = variable), color = "red") +
+  geom_point(aes(shape = variable), color = "red") +
+  scale_shape(labels = c("Pronóstico", "Observación")) +
+  scale_linetype(labels = c("Pronóstico", "Observación")) +
+  facet_wrap(~validez_del_pronostico, 
+             labeller = labeller(validez_del_pronostico = c("24" = "Validez 24 hs", 
+                                                            "48" = "Validez 48 hs"))) +
+  labs(x = "",
+       y = "Temperatura mínima",
+       shape = "",
+       linetype = "") +
+  theme_minimal(base_size = size) +
+  theme(legend.position = "bottom") +
+  
+  ciudad %>% 
+  melt(measure.vars = c("tmin", "tmin_obs")) %>% 
+  ggplot(aes(fecha_pronos, value)) +
+  geom_line(aes(linetype = variable), color = "blue") +
+  geom_point(aes(shape = variable), color = "blue") +
+  scale_shape(labels = c("Pronóstico", "Observación")) +
+  scale_linetype(labels = c("Pronóstico", "Observación")) +
+  facet_wrap(~validez_del_pronostico, 
+             labeller = labeller(validez_del_pronostico = c("24" = "Validez 24 hs", 
+                                                            "48" = "Validez 48 hs"))) +
+  labs(x = "",
+       y = "Temperatura mínima",
+       shape = "",
+       linetype = "") +
+  theme_minimal(base_size = size) +
+  theme(legend.position = "bottom") +
+  patchwork::plot_layout(ncol = 1) 
+```
+]
+
+--
+.pull-right[
+
+```{r}
+ciudad %>%
+  melt(measure.vars = list(prono = c(tmax = "tmax", tmin = "tmin"), 
+                           obs = c(tmax = "tmax_obs", tmin = "tmin_obs"))) %>% 
+  .[, variable := if_else(variable == 1, "Temperatura máxima", "Temperatura mínima")] %>% 
+  .[, .(bias = mean(prono - obs, na.rm = TRUE),
+        mae = mean(abs(prono - obs), na.rm = TRUE),
+        rmse = sd(prono - obs, na.rm = TRUE),
+        cor = cor(prono, obs)), by = .(validez_del_pronostico, variable)] %>% {
+          tabla <- .
+          kable(., col.names = c("Validez", "Variable", "BIAS", "MAE", "RMSE", "Correlación"),
+                align = "clcccc",
+                digits = 2) %>% 
+            column_spec(3, color = if_else(tabla$bias > 0, "red", "blue")) %>% 
+            kable_styling(full_width = FALSE, font_size = 14,
+                          bootstrap_options = c("responsive"))       
+          
+        }
+
+```
+
+]
+
+---
+
+.pull-left[
+
+```{r}
+ciudad %>%
+  melt(measure.vars = list(prono = c(tmax = "tmax", tmin = "tmin"), 
+                           obs = c(tmax = "tmax_obs", tmin = "tmin_obs"))) %>% 
+  ggplot(aes(obs, prono)) +
+  geom_smooth(method = "lm", aes(color = factor(validez_del_pronostico)), se = FALSE) +
+  geom_abline(slope = c(1, 1), intercept = c(-2, 2), linetype = 3) +
+  geom_abline(slope = c(1), intercept = c(0)) +
+  geom_point(aes(color = factor(validez_del_pronostico))) +
+  scale_color_manual(values = c("darkorange", rgb(0, 139, 139, maxColorValue = 255))) +
+  facet_wrap(~variable, labeller = labeller(variable = c("1" = "Temperatura máxima",
+                                                         "2" = "Temperatura mínima")),
+             scales = "free") +
+  labs(x = "Observación", 
+       y = "Pronóstico",
+       color = "Validez") +
+  theme_minimal(base_size = size) +
+  theme(legend.position = "bottom")
+```
+]
+
+.pull-right[
+
+```{r}
+ciudad %>% 
+  # melt(measure.vars = c("tmax", "tmax_obs")) %>% 
+  .[, ":="(diff_max = tmax_obs - tmax,
+           diff_min = tmin_obs - tmin)] %>% 
+  melt(measure.vars = c("diff_max", "diff_min")) %>% 
+  ggplot(aes(value)) +
+  geom_histogram(aes(fill = factor(validez_del_pronostico)), 
+                 binwidth = 1, 
+                 position = "dodge",
+                 color = "white") +
+  scale_fill_manual(values = c("darkorange", rgb(0, 139, 139, maxColorValue = 255))) +
+  scale_x_continuous(breaks = seq(-4, 4, 1)) +
+  facet_wrap(~variable, labeller = labeller(variable = c("diff_max" = "Temperatura máxima",
+                                                         "diff_min" = "Temperatura mínima"))) +
+  labs(fill = "", x = "Diferencia observación - pronóstico") +
+  theme_minimal(base_size = size) +
+  theme(legend.position = "bottom")
+```
+]
+
+
+
+---
+
+## Precipitación
+
+.pull-left[
+
+### Tabla de contingencia
+
+```{r}
+tabla <- ciudad %>% 
+  select(precipitacion, precipitacion_obs) %>% 
+  mutate(precipitacion_obs = factor(precipitacion_obs, levels = c("0", "1")),
+         precipitacion = factor(precipitacion, levels = c("0", "1"))) %>% 
+  table()
+attr(tabla, "dimnames") <- list("Prono" = c("Prono No", "Prono Sí"),
+                                "Obs" = c("Obs No", "Obs Sí"))
+
+pander::pander(tabla, style = "rmarkdown")
+
+tabla <- tabla %>% 
+  addmargins()
+
+acierto <- round((tabla[2, 2] + tabla[1, 1]) / tabla[3, 3], digits = 2)
+bias <- round((tabla[2, 2] + tabla[2, 1]) / (tabla[2, 2] + tabla[1, 2]), digits = 2)
+pod <- round(tabla[2, 2] / (tabla[2, 2] + tabla[1, 2]), digits = 2)
+far <- round(tabla[2, 1] / (tabla[2, 2] + tabla[2, 1]), digits = 2)
+ts <- round(tabla[2, 2] / (tabla[2, 2] + tabla[2, 1] + tabla[1, 2]), digits = 2)
+```
+
+]
+
+.pull-right[
+
+### Estadísticos
+
+- Tasa de acierto: `r acierto`
+- BIAS: `r bias`
+- POD: `r pod`
+- FAR: `r far`
+- TS: `r ts`
+
+]
+
+---
+
+class: inverse, center, middle
+
+# Ciudad 2: Salta
+
+---
+
+## Temperatura
+
+.pull-left[
+
+```{r}
+ciudad <- setDT(loc2)
+
+ciudad %>% 
+  melt(measure.vars = c("tmax", "tmax_obs")) %>% 
+  ggplot(aes(fecha_pronos, value)) +
+  geom_line(aes(linetype = variable), color = "red") +
+  geom_point(aes(shape = variable), color = "red") +
+  scale_shape(labels = c("Pronóstico", "Observación")) +
+  scale_linetype(labels = c("Pronóstico", "Observación")) +
+  facet_wrap(~validez_del_pronostico, 
+             labeller = labeller(validez_del_pronostico = c("24" = "Validez 24 hs", 
+                                                            "48" = "Validez 48 hs"))) +
+  labs(x = "",
+       y = "Temperatura mínima",
+       shape = "",
+       linetype = "") +
+  theme_minimal(base_size = size) +
+  theme(legend.position = "bottom") +
+  
+  ciudad %>% 
+  melt(measure.vars = c("tmin", "tmin_obs")) %>% 
+  ggplot(aes(fecha_pronos, value)) +
+  geom_line(aes(linetype = variable), color = "blue") +
+  geom_point(aes(shape = variable), color = "blue") +
+  scale_shape(labels = c("Pronóstico", "Observación")) +
+  scale_linetype(labels = c("Pronóstico", "Observación")) +
+  facet_wrap(~validez_del_pronostico, 
+             labeller = labeller(validez_del_pronostico = c("24" = "Validez 24 hs", 
+                                                            "48" = "Validez 48 hs"))) +
+  labs(x = "",
+       y = "Temperatura mínima",
+       shape = "",
+       linetype = "") +
+  theme_minimal(base_size = size) +
+  theme(legend.position = "bottom") +
+  patchwork::plot_layout(ncol = 1) 
+```
+]
+
+--
+.pull-right[
+
+```{r}
+ciudad %>%
+  melt(measure.vars = list(prono = c(tmax = "tmax", tmin = "tmin"), 
+                           obs = c(tmax = "tmax_obs", tmin = "tmin_obs"))) %>% 
+  .[, variable := if_else(variable == 1, "Temperatura máxima", "Temperatura mínima")] %>% 
+  .[, .(bias = mean(prono - obs, na.rm = TRUE),
+        mae = mean(abs(prono - obs), na.rm = TRUE),
+        rmse = sd(prono - obs, na.rm = TRUE),
+        cor = cor(prono, obs)), by = .(validez_del_pronostico, variable)] %>% {
+          tabla <- .
+          kable(., col.names = c("Validez", "Variable", "BIAS", "MAE", "RMSE", "Correlación"),
+                align = "clcccc",
+                digits = 2) %>% 
+            column_spec(3, color = if_else(tabla$bias > 0, "red", "blue")) %>% 
+            kable_styling(full_width = FALSE, font_size = 14,
+                          bootstrap_options = c("responsive"))       
+          
+        }
+
+```
+
+]
+
+---
+
+.pull-left[
+
+```{r}
+ciudad %>%
+  melt(measure.vars = list(prono = c(tmax = "tmax", tmin = "tmin"), 
+                           obs = c(tmax = "tmax_obs", tmin = "tmin_obs"))) %>% 
+  ggplot(aes(obs, prono)) +
+  geom_smooth(method = "lm", aes(color = factor(validez_del_pronostico)), se = FALSE) +
+  geom_abline(slope = c(1, 1), intercept = c(-2, 2), linetype = 3) +
+  geom_abline(slope = c(1), intercept = c(0)) +
+  geom_point(aes(color = factor(validez_del_pronostico))) +
+  scale_color_manual(values = c("darkorange", rgb(0, 139, 139, maxColorValue = 255))) +
+  facet_wrap(~variable, labeller = labeller(variable = c("1" = "Temperatura máxima",
+                                                         "2" = "Temperatura mínima")),
+             scales = "free") +
+  labs(x = "Observación", 
+       y = "Pronóstico",
+       color = "Validez") +
+  theme_minimal(base_size = size) +
+  theme(legend.position = "bottom")
+```
+]
+
+.pull-right[
+
+```{r}
+ciudad %>% 
+  # melt(measure.vars = c("tmax", "tmax_obs")) %>% 
+  .[, ":="(diff_max = tmax_obs - tmax,
+           diff_min = tmin_obs - tmin)] %>% 
+  melt(measure.vars = c("diff_max", "diff_min")) %>% 
+  ggplot(aes(value)) +
+  geom_histogram(aes(fill = factor(validez_del_pronostico)), 
+                 binwidth = 1, 
+                 position = "dodge",
+                 color = "white") +
+  scale_fill_manual(values = c("darkorange", rgb(0, 139, 139, maxColorValue = 255))) +
+  scale_x_continuous(breaks = seq(-4, 4, 1)) +
+  facet_wrap(~variable, labeller = labeller(variable = c("diff_max" = "Temperatura máxima",
+                                                         "diff_min" = "Temperatura mínima"))) +
+  labs(fill = "", x = "Diferencia observación - pronóstico") +
+  theme_minimal(base_size = size) +
+  theme(legend.position = "bottom")
+```
+]
+
+
+
+---
+
+## Precipitación
+
+.pull-left[
+
+### Tabla de contingencia
+
+```{r}
+tabla <- ciudad %>% 
+  select(precipitacion, precipitacion_obs) %>% 
+  mutate(precipitacion_obs = factor(precipitacion_obs, levels = c("0", "1")),
+         precipitacion = factor(precipitacion, levels = c("0", "1"))) %>% 
+  table()
+attr(tabla, "dimnames") <- list("Prono" = c("Prono No", "Prono Sí"),
+                                "Obs" = c("Obs No", "Obs Sí"))
+
+pander::pander(tabla, style = "rmarkdown")
+
+tabla <- tabla %>% 
+  addmargins()
+
+acierto <- round((tabla[2, 2] + tabla[1, 1]) / tabla[3, 3], digits = 2)
+bias <- round((tabla[2, 2] + tabla[2, 1]) / (tabla[2, 2] + tabla[1, 2]), digits = 2)
+pod <- round(tabla[2, 2] / (tabla[2, 2] + tabla[1, 2]), digits = 2)
+far <- round(tabla[2, 1] / (tabla[2, 2] + tabla[2, 1]), digits = 2)
+ts <- round(tabla[2, 2] / (tabla[2, 2] + tabla[2, 1] + tabla[1, 2]), digits = 2)
+```
+
+]
+
+.pull-right[
+
+### Estadísticos
+
+- Tasa de acierto: `r acierto`
+- BIAS: `r bias`
+- POD: `r pod`
+- FAR: `r far`
+- TS: `r ts`
+
+]
+
+---
+
+class: inverse, center, middle
+
+# Ciudad 3: Córdoba
+
+---
+
+## Temperatura
+
+.pull-left[
+
+```{r}
+ciudad <- setDT(loc3)
+
+ciudad %>% 
+  melt(measure.vars = c("tmax", "tmax_obs")) %>% 
+  ggplot(aes(fecha_pronos, value)) +
+  geom_line(aes(linetype = variable), color = "red") +
+  geom_point(aes(shape = variable), color = "red") +
+  scale_shape(labels = c("Pronóstico", "Observación")) +
+  scale_linetype(labels = c("Pronóstico", "Observación")) +
+  facet_wrap(~validez_del_pronostico, 
+             labeller = labeller(validez_del_pronostico = c("24" = "Validez 24 hs", 
+                                                            "48" = "Validez 48 hs"))) +
+  labs(x = "",
+       y = "Temperatura mínima",
+       shape = "",
+       linetype = "") +
+  theme_minimal(base_size = size) +
+  theme(legend.position = "bottom") +
+  
+  ciudad %>% 
+  melt(measure.vars = c("tmin", "tmin_obs")) %>% 
+  ggplot(aes(fecha_pronos, value)) +
+  geom_line(aes(linetype = variable), color = "blue") +
+  geom_point(aes(shape = variable), color = "blue") +
+  scale_shape(labels = c("Pronóstico", "Observación")) +
+  scale_linetype(labels = c("Pronóstico", "Observación")) +
+  facet_wrap(~validez_del_pronostico, 
+             labeller = labeller(validez_del_pronostico = c("24" = "Validez 24 hs", 
+                                                            "48" = "Validez 48 hs"))) +
+  labs(x = "",
+       y = "Temperatura mínima",
+       shape = "",
+       linetype = "") +
+  theme_minimal(base_size = size) +
+  theme(legend.position = "bottom") +
+  patchwork::plot_layout(ncol = 1) 
+```
+]
+
+--
+.pull-right[
+
+```{r}
+ciudad %>%
+  melt(measure.vars = list(prono = c(tmax = "tmax", tmin = "tmin"), 
+                           obs = c(tmax = "tmax_obs", tmin = "tmin_obs"))) %>% 
+  .[, variable := if_else(variable == 1, "Temperatura máxima", "Temperatura mínima")] %>% 
+  .[, .(bias = mean(prono - obs, na.rm = TRUE),
+        mae = mean(abs(prono - obs), na.rm = TRUE),
+        rmse = sd(prono - obs, na.rm = TRUE),
+        cor = cor(prono, obs)), by = .(validez_del_pronostico, variable)] %>% {
+          tabla <- .
+          kable(., col.names = c("Validez", "Variable", "BIAS", "MAE", "RMSE", "Correlación"),
+                align = "clcccc",
+                digits = 2) %>% 
+            column_spec(3, color = if_else(tabla$bias > 0, "red", "blue")) %>% 
+            kable_styling(full_width = FALSE, font_size = 14,
+                          bootstrap_options = c("responsive"))       
+          
+        }
+
+```
+
+]
+
+---
+
+.pull-left[
+
+```{r}
+ciudad %>%
+  melt(measure.vars = list(prono = c(tmax = "tmax", tmin = "tmin"), 
+                           obs = c(tmax = "tmax_obs", tmin = "tmin_obs"))) %>% 
+  ggplot(aes(obs, prono)) +
+  geom_smooth(method = "lm", aes(color = factor(validez_del_pronostico)), se = FALSE) +
+  geom_abline(slope = c(1, 1), intercept = c(-2, 2), linetype = 3) +
+  geom_abline(slope = c(1), intercept = c(0)) +
+  geom_point(aes(color = factor(validez_del_pronostico))) +
+  scale_color_manual(values = c("darkorange", rgb(0, 139, 139, maxColorValue = 255))) +
+  facet_wrap(~variable, labeller = labeller(variable = c("1" = "Temperatura máxima",
+                                                         "2" = "Temperatura mínima")),
+             scales = "free") +
+  labs(x = "Observación", 
+       y = "Pronóstico",
+       color = "Validez") +
+  theme_minimal(base_size = size) +
+  theme(legend.position = "bottom")
+```
+]
+
+.pull-right[
+
+```{r}
+ciudad %>% 
+  # melt(measure.vars = c("tmax", "tmax_obs")) %>% 
+  .[, ":="(diff_max = tmax_obs - tmax,
+           diff_min = tmin_obs - tmin)] %>% 
+  melt(measure.vars = c("diff_max", "diff_min")) %>% 
+  ggplot(aes(value)) +
+  geom_histogram(aes(fill = factor(validez_del_pronostico)), 
+                 binwidth = 1, 
+                 position = "dodge",
+                 color = "white") +
+  scale_fill_manual(values = c("darkorange", rgb(0, 139, 139, maxColorValue = 255))) +
+  scale_x_continuous(breaks = seq(-4, 4, 1)) +
+  facet_wrap(~variable, labeller = labeller(variable = c("diff_max" = "Temperatura máxima",
+                                                         "diff_min" = "Temperatura mínima"))) +
+  labs(fill = "", x = "Diferencia observación - pronóstico") +
+  theme_minimal(base_size = size) +
+  theme(legend.position = "bottom")
+```
+]
+
+
+
+---
+
+## Precipitación
+
+.pull-left[
+
+### Tabla de contingencia
+
+```{r}
+tabla <- ciudad %>% 
+  select(precipitacion, precipitacion_obs) %>% 
+  mutate(precipitacion_obs = factor(precipitacion_obs, levels = c("0", "1")),
+         precipitacion = factor(precipitacion, levels = c("0", "1"))) %>% 
+  table()
+attr(tabla, "dimnames") <- list("Prono" = c("Prono No", "Prono Sí"),
+                                "Obs" = c("Obs No", "Obs Sí"))
+
+pander::pander(tabla, style = "rmarkdown")
+
+tabla <- tabla %>% 
+  addmargins()
+
+acierto <- round((tabla[2, 2] + tabla[1, 1]) / tabla[3, 3], digits = 2)
+bias <- round((tabla[2, 2] + tabla[2, 1]) / (tabla[2, 2] + tabla[1, 2]), digits = 2)
+pod <- round(tabla[2, 2] / (tabla[2, 2] + tabla[1, 2]), digits = 2)
+far <- round(tabla[2, 1] / (tabla[2, 2] + tabla[2, 1]), digits = 2)
+ts <- round(tabla[2, 2] / (tabla[2, 2] + tabla[2, 1] + tabla[1, 2]), digits = 2)
+```
+
+]
+
+.pull-right[
+
+### Estadísticos
+
+- Tasa de acierto: `r acierto`
+- BIAS: `r bias`
+- POD: `r pod`
+- FAR: `r far`
+- TS: `r ts`
+
+]

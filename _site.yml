@@ -7,6 +7,8 @@ navbar:
         href: buenos-aires-val.html
       - text: Salta Aero
         href: salta-aero-val.html
+  - text: Presentación final 
+    href: presentacion_final.html
 output_dir: docs
 output:
   html_document:
