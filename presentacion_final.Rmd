@@ -138,8 +138,8 @@ ciudad %>%
 ```{r}
 ciudad %>% 
   # melt(measure.vars = c("tmax", "tmax_obs")) %>% 
-  .[, ":="(diff_max = tmax_obs - tmax,
-           diff_min = tmin_obs - tmin)] %>% 
+  .[, ":="(diff_max = tmax - tmax_obs,
+           diff_min = tmin - tmin_obs)] %>% 
   melt(measure.vars = c("diff_max", "diff_min")) %>% 
   ggplot(aes(value)) +
   geom_histogram(aes(fill = factor(validez_del_pronostico)), 
@@ -156,7 +156,72 @@ ciudad %>%
 ```
 ]
 
+---
 
+.pull-left[
+
+### Algunos casos
+
+```{r}
+casos_48 <- ciudad %>%
+  melt(measure.vars = list(prono = c(tmax = "tmax", tmin = "tmin"), 
+                           obs = c(tmax = "tmax_obs", tmin = "tmin_obs"))) %>% 
+  .[fecha_pronos %in% c(as_datetime("2020-09-12 UTC"),
+                        as_datetime("2020-09-16")) & 
+      validez_del_pronostico == 48 &
+      variable == 2]
+casos_24 <- ciudad %>%
+  melt(measure.vars = list(prono = c(tmax = "tmax", tmin = "tmin"), 
+                           obs = c(tmax = "tmax_obs", tmin = "tmin_obs"))) %>% 
+  .[fecha_pronos %in% c(as_datetime("2020-09-22 UTC")) & 
+      validez_del_pronostico == 24 &
+      variable == 2]
+
+ciudad %>%
+  melt(measure.vars = list(prono = c(tmax = "tmax", tmin = "tmin"), 
+                           obs = c(tmax = "tmax_obs", tmin = "tmin_obs"))) %>% 
+  ggplot(aes(obs, prono)) +
+  geom_smooth(method = "lm", aes(color = factor(validez_del_pronostico)), se = FALSE) +
+  geom_abline(slope = c(1, 1), intercept = c(-2, 2), linetype = 3) +
+  geom_abline(slope = c(1), intercept = c(0)) +
+  geom_point(aes(color = factor(validez_del_pronostico))) +
+  geom_point(data = casos_48, shape = 1, color = "black", size = 5) +
+  geom_point(data = casos_24, shape = 1, color = "black", size = 5) +
+  scale_color_manual(values = c("darkorange", rgb(0, 139, 139, maxColorValue = 255))) +
+  facet_wrap(~variable, labeller = labeller(variable = c("1" = "Temperatura máxima",
+                                                         "2" = "Temperatura mínima")),
+             scales = "free") +
+  labs(x = "Observación", 
+       y = "Pronóstico",
+       color = "Validez") +
+  theme_minimal(base_size = size) +
+  theme(legend.position = "bottom")
+```
+]
+
+.pull-right[
+
+**Pronóstico de mínima a 24 horas**
+
+- Un caso el 22 de septiembre. Temperatura pronósticada 6°C, observada 10°C
+
+*Luego del pasaje de un frente frío esperaba una disminución más marcada de la teperatura y poca o nada nubosidad*
+
+**Pronóstico de mínima a 48 horas**
+
+Dos casos.
+
+- 12 de septiembre. Temperatura pronósticada 10°C, observada 6.4°C
+- 16 de septiembre. Temperatura pronósticada 10°C, observada 7.2°C
+
+*Sobreestimación del modelo y frente frío*
+]
+
+???
+
+En el caso de la temperatura mínima a 24, el caso corresponde al 22 de Septiembre (y no voy a culpar al día de la primavera). Luego del  paso de un frente frío en el día/días previos e inmersos en un anticliclón postfrontal esperaba una disminución mucho más marcada de la temperatura favorecida también por la ausencia de nubes y viento. Sin embargo se observaron cirros y viento sueves a leves del sector norte lo que moderaron la temperatura mínima durante la noche. 
+
+Los casos de temperatura minima a 48 horas correspondes ambos a una sobreestimación de la temperatura. Esto se debe en parte a que tanto el GFS como el WRF sobreestiman la temperatura mínima (al menos en las ciudades donde pronostiqué) y me llevó un tiempo ajustar eso (a veces de más como en el caso anterior). Pero además por ejemplo el caso de 12 de septiembre corresponde al día posterior del pasaje de un frente frío y que si bien tuve en cuenta, no lo suficiente.
 
 ---
 
@@ -309,8 +374,8 @@ ciudad %>%
 ```{r}
 ciudad %>% 
   # melt(measure.vars = c("tmax", "tmax_obs")) %>% 
-  .[, ":="(diff_max = tmax_obs - tmax,
-           diff_min = tmin_obs - tmin)] %>% 
+  .[, ":="(diff_max = tmax - tmax_obs,
+           diff_min = tmin - tmin_obs)] %>% 
   melt(measure.vars = c("diff_max", "diff_min")) %>% 
   ggplot(aes(value)) +
   geom_histogram(aes(fill = factor(validez_del_pronostico)), 
@@ -326,7 +391,6 @@ ciudad %>%
   theme(legend.position = "bottom")
 ```
 ]
-
 
 
 ---
@@ -371,6 +435,14 @@ ts <- round(tabla[2, 2] / (tabla[2, 2] + tabla[2, 1] + tabla[1, 2]), digits = 2)
 - TS: `r ts`
 
 ]
+
+---
+
+### Algunos casos o ¿todos?
+
+* **Temperatura mínima:** fue todo un desafío sin importar el plazo. Todos los modelos tienden a sobrestimar la temperatura y entender los patrones de nubosidad fue complejo.
+
+* **Precipitación:** pocos eventos como para sacar conclusiones, pero... En todos los casos donde los modelos pronosticaron precipitación se sumaron vientos del Este intensos. Si bien se generó precipitación en la región en algunos de estos casos, nunca ocurrieron específicamente en Salta.
 
 ---
 
@@ -542,3 +614,11 @@ ts <- round(tabla[2, 2] / (tabla[2, 2] + tabla[2, 1] + tabla[1, 2]), digits = 2)
 - TS: `r ts`
 
 ]
+
+---
+
+class: inverse, center, middle
+
+![](img/tormentas.png)
+
+# Fin 

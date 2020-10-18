@@ -4,7 +4,7 @@
     <title>Validación de pronósticos</title>
     <meta charset="utf-8" />
     <meta name="author" content="Pao Corrales" />
-    <meta name="date" content="2020-10-12" />
+    <meta name="date" content="2020-10-18" />
     <link href="site_libs/remark-css-0.0.1/default.css" rel="stylesheet" />
     <link href="site_libs/remark-css-0.0.1/rladies.css" rel="stylesheet" />
     <script src="site_libs/kePrint-0.0.1/kePrint.js"></script>
@@ -20,7 +20,7 @@ class: center, middle, inverse, title-slide
 ## <i class='wi wi-day-sunny'></i>
 ### Pao Corrales
 ### Pronóstico del Tiempo
-### 2020-10-12
+### 2020-10-18
 
 ---
 
@@ -104,7 +104,38 @@ class: inverse, center, middle
 ![](presentacion_final_files/figure-html/unnamed-chunk-4-1.png)&lt;!-- --&gt;
 ]
 
+---
 
+.pull-left[
+
+### Algunos casos
+
+![](presentacion_final_files/figure-html/unnamed-chunk-5-1.png)&lt;!-- --&gt;
+]
+
+.pull-right[
+
+**Pronóstico de mínima a 24 horas**
+
+- Un caso el 22 de septiembre. Temperatura pronósticada 6°C, observada 10°C
+
+*Luego del pasaje de un frente frío esperaba una disminución más marcada de la teperatura y poca o nada nubosidad*
+
+**Pronóstico de mínima a 48 horas**
+
+Dos casos.
+
+- 12 de septiembre. Temperatura pronósticada 10°C, observada 6.4°C
+- 16 de septiembre. Temperatura pronósticada 10°C, observada 7.2°C
+
+*Sobreestimación del modelo y frente frío*
+]
+
+???
+
+En el caso de la temperatura mínima a 24, el caso corresponde al 22 de Septiembre (y no voy a culpar al día de la primavera). Luego del  paso de un frente frío en el día/días previos e inmersos en un anticliclón postfrontal esperaba una disminución mucho más marcada de la temperatura favorecida también por la ausencia de nubes y viento. Sin embargo se observaron cirros y viento sueves a leves del sector norte lo que moderaron la temperatura mínima durante la noche. 
+
+Los casos de temperatura minima a 48 horas correspondes ambos a una sobreestimación de la temperatura. Esto se debe en parte a que tanto el GFS como el WRF sobreestiman la temperatura mínima (al menos en las ciudades donde pronostiqué) y me llevó un tiempo ajustar eso (a veces de más como en el caso anterior). Pero además por ejemplo el caso de 12 de septiembre corresponde al día posterior del pasaje de un frente frío y que si bien tuve en cuenta, no lo suficiente.
 
 ---
 
@@ -146,7 +177,7 @@ class: inverse, center, middle
 
 .pull-left[
 
-![](presentacion_final_files/figure-html/unnamed-chunk-6-1.png)&lt;!-- --&gt;
+![](presentacion_final_files/figure-html/unnamed-chunk-7-1.png)&lt;!-- --&gt;
 ]
 
 --
@@ -175,10 +206,10 @@ class: inverse, center, middle
   &lt;tr&gt;
    &lt;td style="text-align:center;"&gt; 48 &lt;/td&gt;
    &lt;td style="text-align:left;"&gt; Temperatura máxima &lt;/td&gt;
-   &lt;td style="text-align:center;color: blue !important;"&gt; -1.46 &lt;/td&gt;
-   &lt;td style="text-align:center;"&gt; 2.68 &lt;/td&gt;
-   &lt;td style="text-align:center;"&gt; 3.91 &lt;/td&gt;
-   &lt;td style="text-align:center;"&gt; 0.84 &lt;/td&gt;
+   &lt;td style="text-align:center;color: blue !important;"&gt; -0.86 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 2.08 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 2.53 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.89 &lt;/td&gt;
   &lt;/tr&gt;
   &lt;tr&gt;
    &lt;td style="text-align:center;"&gt; 24 &lt;/td&gt;
@@ -191,10 +222,10 @@ class: inverse, center, middle
   &lt;tr&gt;
    &lt;td style="text-align:center;"&gt; 48 &lt;/td&gt;
    &lt;td style="text-align:left;"&gt; Temperatura mínima &lt;/td&gt;
-   &lt;td style="text-align:center;color: red !important;"&gt; 1.41 &lt;/td&gt;
-   &lt;td style="text-align:center;"&gt; 2.27 &lt;/td&gt;
-   &lt;td style="text-align:center;"&gt; 2.64 &lt;/td&gt;
-   &lt;td style="text-align:center;"&gt; 0.73 &lt;/td&gt;
+   &lt;td style="text-align:center;color: red !important;"&gt; 0.81 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 2.19 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 2.82 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.65 &lt;/td&gt;
   &lt;/tr&gt;
 &lt;/tbody&gt;
 &lt;/table&gt;
@@ -205,14 +236,13 @@ class: inverse, center, middle
 
 .pull-left[
 
-![](presentacion_final_files/figure-html/unnamed-chunk-8-1.png)&lt;!-- --&gt;
+![](presentacion_final_files/figure-html/unnamed-chunk-9-1.png)&lt;!-- --&gt;
 ]
 
 .pull-right[
 
-![](presentacion_final_files/figure-html/unnamed-chunk-9-1.png)&lt;!-- --&gt;
+![](presentacion_final_files/figure-html/unnamed-chunk-10-1.png)&lt;!-- --&gt;
 ]
-
 
 
 ---
@@ -245,6 +275,14 @@ class: inverse, center, middle
 
 ---
 
+### Algunos casos o ¿todos?
+
+* **Temperatura mínima:** fue todo un desafío sin importar el plazo. Todos los modelos tienden a sobrestimar la temperatura y entender los patrones de nubosidad fue complejo.
+
+* **Precipitación:** pocos eventos como para sacar conclusiones, pero... En todos los casos donde los modelos pronosticaron precipitación se sumaron vientos del Este intensos. Si bien se generó precipitación en la región en algunos de estos casos, nunca ocurrieron específicamente en Salta.
+
+---
+
 class: inverse, center, middle
 
 # Ciudad 3: Córdoba
@@ -255,7 +293,7 @@ class: inverse, center, middle
 
 .pull-left[
 
-![](presentacion_final_files/figure-html/unnamed-chunk-11-1.png)&lt;!-- --&gt;
+![](presentacion_final_files/figure-html/unnamed-chunk-12-1.png)&lt;!-- --&gt;
 ]
 
 --
@@ -314,12 +352,12 @@ class: inverse, center, middle
 
 .pull-left[
 
-![](presentacion_final_files/figure-html/unnamed-chunk-13-1.png)&lt;!-- --&gt;
+![](presentacion_final_files/figure-html/unnamed-chunk-14-1.png)&lt;!-- --&gt;
 ]
 
 .pull-right[
 
-![](presentacion_final_files/figure-html/unnamed-chunk-14-1.png)&lt;!-- --&gt;
+![](presentacion_final_files/figure-html/unnamed-chunk-15-1.png)&lt;!-- --&gt;
 ]
 
 
@@ -351,6 +389,14 @@ class: inverse, center, middle
 - TS: 0.5
 
 ]
+
+---
+
+class: inverse, center, middle
+
+![](img/tormentas.png)
+
+# Fin
     </textarea>
 <style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
 <script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
