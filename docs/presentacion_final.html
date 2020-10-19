@@ -4,7 +4,7 @@
     <title>Validación de pronósticos</title>
     <meta charset="utf-8" />
     <meta name="author" content="Pao Corrales" />
-    <meta name="date" content="2020-10-18" />
+    <meta name="date" content="2020-10-19" />
     <link href="site_libs/remark-css-0.0.1/default.css" rel="stylesheet" />
     <link href="site_libs/remark-css-0.0.1/rladies.css" rel="stylesheet" />
     <script src="site_libs/kePrint-0.0.1/kePrint.js"></script>
@@ -20,7 +20,7 @@ class: center, middle, inverse, title-slide
 ## <i class='wi wi-day-sunny'></i>
 ### Pao Corrales
 ### Pronóstico del Tiempo
-### 2020-10-18
+### 2020-10-19
 
 ---
 
@@ -46,8 +46,8 @@ class: inverse, center, middle
 &lt;table class="table table-responsive" style="font-size: 14px; width: auto !important; margin-left: auto; margin-right: auto;"&gt;
  &lt;thead&gt;
   &lt;tr&gt;
-   &lt;th style="text-align:center;"&gt; Validez &lt;/th&gt;
-   &lt;th style="text-align:left;"&gt; Variable &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; Variable &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; Validez &lt;/th&gt;
    &lt;th style="text-align:center;"&gt; BIAS &lt;/th&gt;
    &lt;th style="text-align:center;"&gt; MAE &lt;/th&gt;
    &lt;th style="text-align:center;"&gt; RMSE &lt;/th&gt;
@@ -56,32 +56,32 @@ class: inverse, center, middle
  &lt;/thead&gt;
 &lt;tbody&gt;
   &lt;tr&gt;
-   &lt;td style="text-align:center;"&gt; 24 &lt;/td&gt;
-   &lt;td style="text-align:left;"&gt; Temperatura máxima &lt;/td&gt;
+   &lt;td style="text-align:center;vertical-align: middle !important;" rowspan="2"&gt; Temperatura máxima &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 24 &lt;/td&gt;
    &lt;td style="text-align:center;color: blue !important;"&gt; -0.87 &lt;/td&gt;
    &lt;td style="text-align:center;"&gt; 1.35 &lt;/td&gt;
    &lt;td style="text-align:center;"&gt; 1.45 &lt;/td&gt;
    &lt;td style="text-align:center;"&gt; 0.85 &lt;/td&gt;
   &lt;/tr&gt;
   &lt;tr&gt;
-   &lt;td style="text-align:center;"&gt; 48 &lt;/td&gt;
-   &lt;td style="text-align:left;"&gt; Temperatura máxima &lt;/td&gt;
+   
+   &lt;td style="text-align:left;"&gt; 48 &lt;/td&gt;
    &lt;td style="text-align:center;color: blue !important;"&gt; -1.45 &lt;/td&gt;
    &lt;td style="text-align:center;"&gt; 1.53 &lt;/td&gt;
    &lt;td style="text-align:center;"&gt; 1.21 &lt;/td&gt;
    &lt;td style="text-align:center;"&gt; 0.96 &lt;/td&gt;
   &lt;/tr&gt;
   &lt;tr&gt;
-   &lt;td style="text-align:center;"&gt; 24 &lt;/td&gt;
-   &lt;td style="text-align:left;"&gt; Temperatura mínima &lt;/td&gt;
+   &lt;td style="text-align:center;vertical-align: middle !important;" rowspan="2"&gt; Temperatura mínima &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 24 &lt;/td&gt;
    &lt;td style="text-align:center;color: blue !important;"&gt; -0.77 &lt;/td&gt;
    &lt;td style="text-align:center;"&gt; 1.26 &lt;/td&gt;
    &lt;td style="text-align:center;"&gt; 1.60 &lt;/td&gt;
    &lt;td style="text-align:center;"&gt; 0.83 &lt;/td&gt;
   &lt;/tr&gt;
   &lt;tr&gt;
-   &lt;td style="text-align:center;"&gt; 48 &lt;/td&gt;
-   &lt;td style="text-align:left;"&gt; Temperatura mínima &lt;/td&gt;
+   
+   &lt;td style="text-align:left;"&gt; 48 &lt;/td&gt;
    &lt;td style="text-align:center;color: red !important;"&gt; 1.07 &lt;/td&gt;
    &lt;td style="text-align:center;"&gt; 1.57 &lt;/td&gt;
    &lt;td style="text-align:center;"&gt; 1.57 &lt;/td&gt;
@@ -91,6 +91,14 @@ class: inverse, center, middle
 &lt;/table&gt;
 
 ]
+
+???
+
+En esta figura les muestro la evolución de la temperatura pronosticada en linea llena y la temperatura observada en linea punteada. Hay que tener presente que no tenemos pronósticos para todos los días. Las columnas corresponden a los plazos de pronóstico y las filas a la temperatura máxima o mínima.
+
+Y en lineas generales los pronósticos son acordes a la evolución de la temperatura. Sin embargo y principalmente para la temperatura mínima se ven diferencias importantes.
+
+Esto se puede ver cuantitativamente en la siguiente tabla donde se ve que el RMSE del pronóstico para la temperatura temperatura mínima es mayor tanto para 24 como 48 horas. En casi todos los casos el pronóstico tienen un bias negativo, está subestimando la temperatura. Esto cambia para la mínima a 48 horas donde el bias es positivo, cálido, indicand que el pronóstico está sobreestimando la mínima. Esto puede deberse tanto al aumento del plazo del pronóstico y por lo tanto de los errores de los modelos como a un aumento de la incertidumbre en el análisis de la situación.
 
 ---
 
@@ -103,6 +111,12 @@ class: inverse, center, middle
 
 ![](presentacion_final_files/figure-html/unnamed-chunk-4-1.png)&lt;!-- --&gt;
 ]
+
+???
+
+En la figura de la izquierda se muestra la relación entre la temperatura observada y la pronósticada, en naranja a 24 horas y en verde a 48 horas. 
+
+Para el caso de la máxima, en general hay algún casos donde la temperatura fue subestimada como vimos con los valores de bias negativos, pero en general tienen mucha menos dispersión. Por otro lado la temperatura mínima y sobre todo a 48 horas muestra mayor dispersión con varios casos de sobreestimación de la temperatura.
 
 ---
 
@@ -165,6 +179,12 @@ Los casos de temperatura minima a 48 horas correspondes ambos a una sobreestimac
 
 ]
 
+???
+
+Respecto de la precipitción, no hubo muchas situaciones a pronosticar, en total pronóstiqué lluviar en 3 días diferentes, de los cuales llovió 2 dando una tasa de acierto de 0.95 y falsa alarma del 33%. 
+
+El caso de falsa alarma corresponde al primer episodio de lluvia cuando todavía no estabamos utilizando los pronósticos por ensambles. Me guie por un solo modelo (GFS) y no estuve en la discusión donde seguramente analizaron cosas que no tuve en cuenta.
+
 ---
 
 class: inverse, center, middle
@@ -186,8 +206,8 @@ class: inverse, center, middle
 &lt;table class="table table-responsive" style="font-size: 14px; width: auto !important; margin-left: auto; margin-right: auto;"&gt;
  &lt;thead&gt;
   &lt;tr&gt;
-   &lt;th style="text-align:center;"&gt; Validez &lt;/th&gt;
-   &lt;th style="text-align:left;"&gt; Variable &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; Variable &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; Validez &lt;/th&gt;
    &lt;th style="text-align:center;"&gt; BIAS &lt;/th&gt;
    &lt;th style="text-align:center;"&gt; MAE &lt;/th&gt;
    &lt;th style="text-align:center;"&gt; RMSE &lt;/th&gt;
@@ -196,32 +216,32 @@ class: inverse, center, middle
  &lt;/thead&gt;
 &lt;tbody&gt;
   &lt;tr&gt;
-   &lt;td style="text-align:center;"&gt; 24 &lt;/td&gt;
-   &lt;td style="text-align:left;"&gt; Temperatura máxima &lt;/td&gt;
+   &lt;td style="text-align:center;vertical-align: middle !important;" rowspan="2"&gt; Temperatura máxima &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 24 &lt;/td&gt;
    &lt;td style="text-align:center;color: blue !important;"&gt; -0.05 &lt;/td&gt;
    &lt;td style="text-align:center;"&gt; 1.51 &lt;/td&gt;
    &lt;td style="text-align:center;"&gt; 1.85 &lt;/td&gt;
    &lt;td style="text-align:center;"&gt; 0.87 &lt;/td&gt;
   &lt;/tr&gt;
   &lt;tr&gt;
-   &lt;td style="text-align:center;"&gt; 48 &lt;/td&gt;
-   &lt;td style="text-align:left;"&gt; Temperatura máxima &lt;/td&gt;
+   
+   &lt;td style="text-align:left;"&gt; 48 &lt;/td&gt;
    &lt;td style="text-align:center;color: blue !important;"&gt; -0.86 &lt;/td&gt;
    &lt;td style="text-align:center;"&gt; 2.08 &lt;/td&gt;
    &lt;td style="text-align:center;"&gt; 2.53 &lt;/td&gt;
    &lt;td style="text-align:center;"&gt; 0.89 &lt;/td&gt;
   &lt;/tr&gt;
   &lt;tr&gt;
-   &lt;td style="text-align:center;"&gt; 24 &lt;/td&gt;
-   &lt;td style="text-align:left;"&gt; Temperatura mínima &lt;/td&gt;
+   &lt;td style="text-align:center;vertical-align: middle !important;" rowspan="2"&gt; Temperatura mínima &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 24 &lt;/td&gt;
    &lt;td style="text-align:center;color: red !important;"&gt; 0.40 &lt;/td&gt;
    &lt;td style="text-align:center;"&gt; 2.70 &lt;/td&gt;
    &lt;td style="text-align:center;"&gt; 3.34 &lt;/td&gt;
    &lt;td style="text-align:center;"&gt; 0.66 &lt;/td&gt;
   &lt;/tr&gt;
   &lt;tr&gt;
-   &lt;td style="text-align:center;"&gt; 48 &lt;/td&gt;
-   &lt;td style="text-align:left;"&gt; Temperatura mínima &lt;/td&gt;
+   
+   &lt;td style="text-align:left;"&gt; 48 &lt;/td&gt;
    &lt;td style="text-align:center;color: red !important;"&gt; 0.81 &lt;/td&gt;
    &lt;td style="text-align:center;"&gt; 2.19 &lt;/td&gt;
    &lt;td style="text-align:center;"&gt; 2.82 &lt;/td&gt;
@@ -231,6 +251,12 @@ class: inverse, center, middle
 &lt;/table&gt;
 
 ]
+
+???
+
+En el caso de Salta, de nuevo la evolución de la temperatura máxima pronosticada respecto de a observada es bastante razonable y por ejemplo el bias para la t maxima a 24 horas es de solo -0.05. 
+
+Algo muy distinto ocurre con la mínima donde los errores aumentan y de hecho la correlación es mucho menor, de alrededor de 0.6 para ambos plazos. La temperatura minima fue particularmente completa de pronosticar en parte porque los modelos no la representan bien y por cuestiones locales.
 
 ---
 
@@ -244,7 +270,11 @@ class: inverse, center, middle
 ![](presentacion_final_files/figure-html/unnamed-chunk-10-1.png)&lt;!-- --&gt;
 ]
 
+???
 
+En estos graficos de dispersión para la teperatura máxima se ve poca dispersión (la correlación es de 0.89 y 0.87) aunque algo mayor que para Buenos Aires. Ahora, respecto de la mínima... la dispersión es enorme y sería dificil elegir uno o dos casos. 
+
+Se ve en el grafico de la derecha que los casos (pocos pronosticos) estan distribuidos en todo el rango de diferencias. 
 ---
 
 ## Precipitación
@@ -266,12 +296,18 @@ class: inverse, center, middle
 ### Estadísticos
 
 - Tasa de acierto: 0.9
-- BIAS: \infty{}
-- POD: NaN
+&lt;!-- - BIAS: \infty{} --&gt;
+&lt;!-- - POD: NA NaN --&gt;
+- BIAS: NA
+- POD: NA
 - FAR: 1
 - TS: 0
 
 ]
+
+???
+
+Y acá se muestra la tabla de contigencia para los pronósticos de precipitación. Fueron pocos casos y en hecho de no haber tenido ningún acierto ni falsa alarma hace imposible calcular el BIAS y la probabilidad de detección. En el caso de las Falsas alarmas, es 1, ya que los únicos casos donde se pronosticó precipitación (2 días seguidos) no llovió. 
 
 ---
 
@@ -302,8 +338,8 @@ class: inverse, center, middle
 &lt;table class="table table-responsive" style="font-size: 14px; width: auto !important; margin-left: auto; margin-right: auto;"&gt;
  &lt;thead&gt;
   &lt;tr&gt;
-   &lt;th style="text-align:center;"&gt; Validez &lt;/th&gt;
-   &lt;th style="text-align:left;"&gt; Variable &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; Variable &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; Validez &lt;/th&gt;
    &lt;th style="text-align:center;"&gt; BIAS &lt;/th&gt;
    &lt;th style="text-align:center;"&gt; MAE &lt;/th&gt;
    &lt;th style="text-align:center;"&gt; RMSE &lt;/th&gt;
@@ -312,32 +348,32 @@ class: inverse, center, middle
  &lt;/thead&gt;
 &lt;tbody&gt;
   &lt;tr&gt;
-   &lt;td style="text-align:center;"&gt; 24 &lt;/td&gt;
-   &lt;td style="text-align:left;"&gt; Temperatura máxima &lt;/td&gt;
+   &lt;td style="text-align:center;vertical-align: middle !important;" rowspan="2"&gt; Temperatura máxima &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 24 &lt;/td&gt;
    &lt;td style="text-align:center;color: blue !important;"&gt; -1.53 &lt;/td&gt;
    &lt;td style="text-align:center;"&gt; 1.80 &lt;/td&gt;
    &lt;td style="text-align:center;"&gt; 1.43 &lt;/td&gt;
    &lt;td style="text-align:center;"&gt; 0.96 &lt;/td&gt;
   &lt;/tr&gt;
   &lt;tr&gt;
-   &lt;td style="text-align:center;"&gt; 48 &lt;/td&gt;
-   &lt;td style="text-align:left;"&gt; Temperatura máxima &lt;/td&gt;
+   
+   &lt;td style="text-align:left;"&gt; 48 &lt;/td&gt;
    &lt;td style="text-align:center;color: blue !important;"&gt; -1.73 &lt;/td&gt;
    &lt;td style="text-align:center;"&gt; 3.70 &lt;/td&gt;
    &lt;td style="text-align:center;"&gt; 4.24 &lt;/td&gt;
    &lt;td style="text-align:center;"&gt; 0.85 &lt;/td&gt;
   &lt;/tr&gt;
   &lt;tr&gt;
-   &lt;td style="text-align:center;"&gt; 24 &lt;/td&gt;
-   &lt;td style="text-align:left;"&gt; Temperatura mínima &lt;/td&gt;
+   &lt;td style="text-align:center;vertical-align: middle !important;" rowspan="2"&gt; Temperatura mínima &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 24 &lt;/td&gt;
    &lt;td style="text-align:center;color: red !important;"&gt; 1.47 &lt;/td&gt;
    &lt;td style="text-align:center;"&gt; 3.17 &lt;/td&gt;
    &lt;td style="text-align:center;"&gt; 3.80 &lt;/td&gt;
    &lt;td style="text-align:center;"&gt; 0.58 &lt;/td&gt;
   &lt;/tr&gt;
   &lt;tr&gt;
-   &lt;td style="text-align:center;"&gt; 48 &lt;/td&gt;
-   &lt;td style="text-align:left;"&gt; Temperatura mínima &lt;/td&gt;
+   
+   &lt;td style="text-align:left;"&gt; 48 &lt;/td&gt;
    &lt;td style="text-align:center;color: red !important;"&gt; 1.58 &lt;/td&gt;
    &lt;td style="text-align:center;"&gt; 2.35 &lt;/td&gt;
    &lt;td style="text-align:center;"&gt; 2.67 &lt;/td&gt;

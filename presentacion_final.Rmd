@@ -56,7 +56,7 @@ ciudad %>%
              labeller = labeller(validez_del_pronostico = c("24" = "Validez 24 hs", 
                                                             "48" = "Validez 48 hs"))) +
   labs(x = "",
-       y = "Temperatura mínima",
+       y = "Temperatura máxima",
        shape = "",
        linetype = "") +
   theme_minimal(base_size = size) +
@@ -93,12 +93,13 @@ ciudad %>%
   .[, .(bias = mean(prono - obs, na.rm = TRUE),
         mae = mean(abs(prono - obs), na.rm = TRUE),
         rmse = sd(prono - obs, na.rm = TRUE),
-        cor = cor(prono, obs)), by = .(validez_del_pronostico, variable)] %>% {
+        cor = cor(prono, obs)), by = .(variable, validez_del_pronostico)] %>% {
           tabla <- .
-          kable(., col.names = c("Validez", "Variable", "BIAS", "MAE", "RMSE", "Correlación"),
+          kable(., col.names = c("Variable", "Validez", "BIAS", "MAE", "RMSE", "Correlación"),
                 align = "clcccc",
                 digits = 2) %>% 
             column_spec(3, color = if_else(tabla$bias > 0, "red", "blue")) %>% 
+            collapse_rows(columns = 1, valign = "middle") %>% 
             kable_styling(full_width = FALSE, font_size = 14,
                           bootstrap_options = c("responsive"))       
           
@@ -107,6 +108,14 @@ ciudad %>%
 ```
 
 ]
+
+???
+
+En esta figura les muestro la evolución de la temperatura pronosticada en linea llena y la temperatura observada en linea punteada. Hay que tener presente que no tenemos pronósticos para todos los días. Las columnas corresponden a los plazos de pronóstico y las filas a la temperatura máxima o mínima.
+
+Y en lineas generales los pronósticos son acordes a la evolución de la temperatura. Sin embargo y principalmente para la temperatura mínima se ven diferencias importantes.
+
+Esto se puede ver cuantitativamente en la siguiente tabla donde se ve que el RMSE del pronóstico para la temperatura temperatura mínima es mayor tanto para 24 como 48 horas. En casi todos los casos el pronóstico tienen un bias negativo, está subestimando la temperatura. Esto cambia para la mínima a 48 horas donde el bias es positivo, cálido, indicand que el pronóstico está sobreestimando la mínima. Esto puede deberse tanto al aumento del plazo del pronóstico y por lo tanto de los errores de los modelos como a un aumento de la incertidumbre en el análisis de la situación.
 
 ---
 
@@ -155,6 +164,12 @@ ciudad %>%
   theme(legend.position = "bottom")
 ```
 ]
+
+???
+
+En la figura de la izquierda se muestra la relación entre la temperatura observada y la pronósticada, en naranja a 24 horas y en verde a 48 horas. 
+
+Para el caso de la máxima, en general hay algún casos donde la temperatura fue subestimada como vimos con los valores de bias negativos, pero en general tienen mucha menos dispersión. Por otro lado la temperatura mínima y sobre todo a 48 horas muestra mayor dispersión con varios casos de sobreestimación de la temperatura.
 
 ---
 
@@ -266,6 +281,12 @@ ts <- round(tabla[2, 2] / (tabla[2, 2] + tabla[2, 1] + tabla[1, 2]), digits = 2)
 
 ]
 
+???
+
+Respecto de la precipitción, no hubo muchas situaciones a pronosticar, en total pronóstiqué lluviar en 3 días diferentes, de los cuales llovió 2 dando una tasa de acierto de 0.95 y falsa alarma del 33%. 
+
+El caso de falsa alarma corresponde al primer episodio de lluvia cuando todavía no estabamos utilizando los pronósticos por ensambles. Me guie por un solo modelo (GFS) y no estuve en la discusión donde seguramente analizaron cosas que no tuve en cuenta.
+
 ---
 
 class: inverse, center, middle
@@ -329,12 +350,13 @@ ciudad %>%
   .[, .(bias = mean(prono - obs, na.rm = TRUE),
         mae = mean(abs(prono - obs), na.rm = TRUE),
         rmse = sd(prono - obs, na.rm = TRUE),
-        cor = cor(prono, obs)), by = .(validez_del_pronostico, variable)] %>% {
+        cor = cor(prono, obs)), by = .(variable, validez_del_pronostico)] %>% {
           tabla <- .
-          kable(., col.names = c("Validez", "Variable", "BIAS", "MAE", "RMSE", "Correlación"),
+          kable(., col.names = c("Variable", "Validez", "BIAS", "MAE", "RMSE", "Correlación"),
                 align = "clcccc",
                 digits = 2) %>% 
             column_spec(3, color = if_else(tabla$bias > 0, "red", "blue")) %>% 
+            collapse_rows(columns = 1, valign = "middle") %>% 
             kable_styling(full_width = FALSE, font_size = 14,
                           bootstrap_options = c("responsive"))       
           
@@ -343,6 +365,12 @@ ciudad %>%
 ```
 
 ]
+
+???
+
+En el caso de Salta, de nuevo la evolución de la temperatura máxima pronosticada respecto de a observada es bastante razonable y por ejemplo el bias para la t maxima a 24 horas es de solo -0.05. 
+
+Algo muy distinto ocurre con la mínima donde los errores aumentan y de hecho la correlación es mucho menor, de alrededor de 0.6 para ambos plazos. La temperatura minima fue particularmente completa de pronosticar en parte porque los modelos no la representan bien y por cuestiones locales.
 
 ---
 
@@ -392,7 +420,11 @@ ciudad %>%
 ```
 ]
 
+???
 
+En estos graficos de dispersión para la teperatura máxima se ve poca dispersión (la correlación es de 0.89 y 0.87) aunque algo mayor que para Buenos Aires. Ahora, respecto de la mínima... la dispersión es enorme y sería dificil elegir uno o dos casos. 
+
+Se ve en el grafico de la derecha que los casos (pocos pronosticos) estan distribuidos en todo el rango de diferencias. 
 ---
 
 ## Precipitación
@@ -429,12 +461,18 @@ ts <- round(tabla[2, 2] / (tabla[2, 2] + tabla[2, 1] + tabla[1, 2]), digits = 2)
 ### Estadísticos
 
 - Tasa de acierto: `r acierto`
-- BIAS: `r bias`
-- POD: `r pod`
+<!-- - BIAS: `r bias` -->
+<!-- - POD: NA `r pod` -->
+- BIAS: NA
+- POD: NA
 - FAR: `r far`
 - TS: `r ts`
 
 ]
+
+???
+
+Y acá se muestra la tabla de contigencia para los pronósticos de precipitación. Fueron pocos casos y en hecho de no haber tenido ningún acierto ni falsa alarma hace imposible calcular el BIAS y la probabilidad de detección. En el caso de las Falsas alarmas, es 1, ya que los únicos casos donde se pronosticó precipitación (2 días seguidos) no llovió. 
 
 ---
 
@@ -507,12 +545,13 @@ ciudad %>%
   .[, .(bias = mean(prono - obs, na.rm = TRUE),
         mae = mean(abs(prono - obs), na.rm = TRUE),
         rmse = sd(prono - obs, na.rm = TRUE),
-        cor = cor(prono, obs)), by = .(validez_del_pronostico, variable)] %>% {
+        cor = cor(prono, obs)), by = .(variable, validez_del_pronostico)] %>% {
           tabla <- .
-          kable(., col.names = c("Validez", "Variable", "BIAS", "MAE", "RMSE", "Correlación"),
+          kable(., col.names = c("Variable", "Validez", "BIAS", "MAE", "RMSE", "Correlación"),
                 align = "clcccc",
                 digits = 2) %>% 
             column_spec(3, color = if_else(tabla$bias > 0, "red", "blue")) %>% 
+            collapse_rows(columns = 1, valign = "middle") %>% 
             kable_styling(full_width = FALSE, font_size = 14,
                           bootstrap_options = c("responsive"))       
           
