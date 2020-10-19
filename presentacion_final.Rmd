@@ -484,6 +484,50 @@ Y acá se muestra la tabla de contigencia para los pronósticos de precipitació
 
 ---
 
+### Pronóstico a 24 horas para el 9 de octubre
+
+* **Texto claro: ** Se espera buen tiempo con nubosidad media y baja cubriendo el cielo por la tarde moderando la temperatura máxima que podría alcanzar los 27 a 29 grados. **La mínima se espera entre los 10 y 11 grados** y el viento será principalmente de E. 
+
+Pronóstico utilizando GEFS, ECMWF (emsamble), WRF-SMN (determinístico y emsable).
+
+* **Temperaturas mínimas según los modelos:**
+
+* ECMWF: 11-15°C
+* GEFS: 16-17°C
+* WRF-SMN (ens): 17-18°C
+* WRF-SMN (det): 16°C
+
+???
+
+Siuación previa: 
+08-10-2020
+La presencia de un sistema anticiclónico en el centro y norte del país propició la presencia de vientos predominantes del E mientras que en altura el flujo fue principalmente del oeste generando nubosidad del tipo cirrus. Las temperaturas máximas superaron los 30 grados, alcanzando los 36 grados en algunas estaciones. En cuento a la humedad, la región está dominada por aire seco con humedad relativa alrededor de 30% por la tarde (18 UTC).
+
+Pronostico: 
+Para el día de mañana se espera buen tiempo con un aumento de la nubosidad que moderará las temperaturas durante el día. El viento será predominante del del sector y no se espera un aumento en el contenido de vapor de agua. 
+
+---
+.pull-left[
+
+* **Lo observado:**
+
+  - Temperatura maxima: 25.3°
+  - Temperatura mínima: 15.8°
+  - Nubosidad: mayormente nublado a totalmente nublado
+  
+![](img/ogiment.png)
+]
+
+.pull.right[
+
+**Posibles causas**
+
+* Nubosidad
+* Error en el análisis de la situación del día previo
+
+]
+---
+
 class: inverse, center, middle
 
 # Ciudad 3: Córdoba
